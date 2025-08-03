@@ -120,6 +120,7 @@ class Maze:
         self.create_cells()
         self.break_entrance_and_exit()
         self.break_walls_r(0, 0)
+        self.reset_cells_visited()
     
     def create_cells(self):
         for c in range(self.num_cols):
@@ -186,3 +187,47 @@ class Maze:
                     self.cells[neighbor_i][neighbor_j].has_bottom_wall = False
                 self.break_walls_r(neighbor_i, neighbor_j)
             
+    def reset_cells_visited(self):
+        for c in range(self.num_cols):
+            for r in range(self.num_rows):
+                self.cells[c][r].visited = False
+    
+    def solve(self):
+        return self.solve_r(0, 0)
+    
+    def solve_r(self, i, j):
+        self.animate()
+        cell = self.cells[i][j]
+        cell.visited = True
+        if (
+            i == self.num_cols - 1 and j == self.num_rows - 1
+        ):
+            return True
+        directions = [
+            [1, 0], [0, 1], [-1, 0], [0, -1]
+        ]
+        for direction in directions:
+            column = i + direction[0]
+            row = j + direction[1]
+            if column < 0 or column >= self.num_cols or row < 0 or row >= self.num_rows:
+                continue
+            next = self.cells[column][row]
+            if self.no_wall(cell, direction) and self.cells[column][row].visited == False:
+                cell.draw_move(next)
+                result = self.solve_r(column, row)
+                if result:
+                    return True
+                else:
+                    cell.draw_move(next, True)
+        return False
+    
+    def no_wall(self, cell, direction):
+        if direction == [1, 0]:
+            return not cell.has_right_wall
+        elif direction == [0, 1]:
+            return not cell.has_bottom_wall
+        elif direction == [-1, 0]:
+            return not cell.has_left_wall
+        elif direction == [0, -1]:
+            return not cell.has_top_wall
+
