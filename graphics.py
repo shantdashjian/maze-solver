@@ -1,5 +1,5 @@
 from tkinter import Tk, BOTH, Canvas
-import time
+import time, random
 
 class Window:
     def __init__(self, width, height):
@@ -49,6 +49,7 @@ class Cell:
         self.has_right_wall = True
         self.has_top_wall = True
         self.has_bottom_wall = True
+        self.visited = False
         self.x1 = -1
         self.y1 = -1
         self.x2 = -1
@@ -104,6 +105,7 @@ class Maze:
         cell_size_x,
         cell_size_y,
         win=None,
+        seed=None
     ):
         self.x1 = x1
         self.y1 = y1
@@ -113,10 +115,18 @@ class Maze:
         self.cell_size_y = cell_size_y
         self.win = win
         self.cells = []
+        if seed:
+            random.seed(seed)
         self.create_cells()
+        self.break_entrance_and_exit()
+        self.break_walls_r(0, 0)
     
     def create_cells(self):
-        self.cells = [[Cell(self.win)] * self.num_rows for _ in range(self.num_cols)]
+        for c in range(self.num_cols):
+            self.cells.append([])
+            for r in range(self.num_rows):
+                self.cells[c].append(Cell(self.win))
+
         for c in range(self.num_cols):
             for r in range(self.num_rows):
                 self.draw_cell(c, r)
@@ -133,10 +143,46 @@ class Maze:
         if not self.win:
             return
         self.win.redraw()
-        time.sleep(0.05)
+        time.sleep(0.01)
     
     def break_entrance_and_exit(self):
         self.cells[0][0].has_top_wall = False
         self.draw_cell(0, 0)
         self.cells[-1][-1].has_bottom_wall = False
         self.draw_cell(self.num_cols - 1, self.num_rows - 1)
+    
+    def break_walls_r(self, i, j):
+        self.cells[i][j].visited = True
+        directions = [
+            [1, 0], [0, 1], [-1, 0], [0, -1]
+        ]
+        while True:
+            to_visit = []
+            for direction in directions:
+                column = i + direction[0]
+                row = j + direction[1]
+                if column < 0 or column >= self.num_cols or row < 0 or row >= self.num_rows:
+                    continue
+                if self.cells[column][row].visited == False:
+                    to_visit.append(direction)
+            if not to_visit:
+                self.draw_cell(i, j)
+                return
+            else:
+                direction = random.randint(0, len(to_visit) - 1)
+                neighbor_i = i + to_visit[direction][0]
+                neighbor_j = j + to_visit[direction][1]
+                if to_visit[direction] == directions[0]:
+                    self.cells[i][j].has_right_wall = False
+                    self.cells[neighbor_i][neighbor_j].has_left_wall = False
+                elif to_visit[direction] == directions[1]:
+                    self.cells[i][j].has_bottom_wall = False
+                    self.cells[neighbor_i][neighbor_j].has_top_wall = False
+                elif to_visit[direction] == directions[2]:
+                    self.cells[i][j].has_left_wall = False
+                    self.cells[neighbor_i][neighbor_j].has_right_wall = False
+                elif to_visit[direction] == directions[3]:
+                    self.cells[i][j].has_top_wall = False
+                    self.cells[neighbor_i][neighbor_j].has_bottom_wall = False
+                self.break_walls_r(neighbor_i, neighbor_j)
+            
