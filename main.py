@@ -8,6 +8,9 @@ def main():
 
     cell_2 = Cell(win)
     cell_2.draw(100, 100, 200, 150)
-    win.wait_for_close()
 
+    cell_1.draw_move(cell_2)
+
+    win.wait_for_close()
+    
 main()

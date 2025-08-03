@@ -71,3 +71,12 @@ class Cell:
             self.win.draw_line(Line(bottom_right_corner, bottom_left_corner))
         if self.has_left_wall:
             self.win.draw_line(Line(bottom_left_corner, top_left_corner))
+
+    def draw_move(self, to_cell, undo=False):
+        if not undo:
+            color = "red"
+        else:
+            color = "gray"
+        self_center = Point((self.x1 + self.x2) // 2, (self.y1 + self.y2) // 2)
+        other_center = Point((to_cell.x1 + to_cell.x2) // 2, (to_cell.y1 + to_cell.y2) // 2)
+        self.win.draw_line(Line(self_center, other_center), color)
