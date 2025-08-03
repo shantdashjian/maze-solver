@@ -68,12 +68,20 @@ class Cell:
             return
         if self.has_top_wall:
             self.win.draw_line(Line(top_left_corner, top_right_corner))
+        else:
+            self.win.draw_line(Line(top_left_corner, top_right_corner), "white")
         if self.has_right_wall:
             self.win.draw_line(Line(top_right_corner, bottom_right_corner))
+        else:
+            self.win.draw_line(Line(top_right_corner, bottom_right_corner), "white")
         if self.has_bottom_wall:
             self.win.draw_line(Line(bottom_right_corner, bottom_left_corner))
+        else:
+            self.win.draw_line(Line(bottom_right_corner, bottom_left_corner), "white")
         if self.has_left_wall:
             self.win.draw_line(Line(bottom_left_corner, top_left_corner))
+        else:
+            self.win.draw_line(Line(bottom_left_corner, top_left_corner), "white")
 
     def draw_move(self, to_cell, undo=False):
         if not undo:
@@ -126,3 +134,9 @@ class Maze:
             return
         self.win.redraw()
         time.sleep(0.05)
+    
+    def break_entrance_and_exit(self):
+        self.cells[0][0].has_top_wall = False
+        self.draw_cell(0, 0)
+        self.cells[-1][-1].has_bottom_wall = False
+        self.draw_cell(self.num_cols - 1, self.num_rows - 1)
